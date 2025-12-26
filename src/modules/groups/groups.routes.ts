@@ -100,7 +100,7 @@ groups.get('/', async (c) => {
 
     try {
         const chats = await waManager.getChats(instanceId);
-        const groupsList = chats.filter(chat => chat.isGroup);
+        const groupsList = chats.filter((chat: any) => chat.isGroup);
 
         return c.json({
             success: true,
@@ -129,7 +129,7 @@ groups.post('/list', async (c) => {
 
     try {
         const chats = await waManager.getChats(instanceId);
-        const allGroups = chats.filter(chat => chat.isGroup);
+        const allGroups = chats.filter((chat: any) => chat.isGroup);
 
         const total = allGroups.length;
         const start = (page - 1) * limit;

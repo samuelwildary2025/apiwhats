@@ -68,16 +68,16 @@ chats.post('/search', async (c) => {
         // Apply filters
         switch (filter) {
             case 'unread':
-                chatsList = chatsList.filter(chat => chat.unreadCount > 0);
+                chatsList = chatsList.filter((chat: any) => chat.unreadCount > 0);
                 break;
             case 'groups':
-                chatsList = chatsList.filter(chat => chat.isGroup);
+                chatsList = chatsList.filter((chat: any) => chat.isGroup);
                 break;
             case 'contacts':
-                chatsList = chatsList.filter(chat => !chat.isGroup);
+                chatsList = chatsList.filter((chat: any) => !chat.isGroup);
                 break;
             case 'archived':
-                chatsList = chatsList.filter(chat => chat.archived);
+                chatsList = chatsList.filter((chat: any) => chat.archived);
                 break;
         }
 

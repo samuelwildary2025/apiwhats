@@ -1,14 +1,16 @@
-import { Client, LocalAuth, Message, MessageMedia } from 'whatsapp-web.js';
+// @ts-nocheck - whatsapp-web.js is CommonJS and has typing issues with ESM
+import pkg from 'whatsapp-web.js';
+const { Client, LocalAuth, MessageMedia, Location } = pkg;
 import { EventEmitter } from 'events';
 import * as fs from 'fs';
 import * as path from 'path';
-import * as QRCode from 'qrcode';
+import QRCode from 'qrcode';
 import { env } from '../config/env.js';
 import { logger } from './logger.js';
 import { prisma } from './prisma.js';
 
 export interface WAInstance {
-    client: Client;
+    client: any;
     id: string;
     status: 'disconnected' | 'connecting' | 'connected' | 'qr';
     qrCode?: string;
@@ -85,7 +87,7 @@ class WhatsAppManager extends EventEmitter {
     private setupEventHandlers(instance: WAInstance) {
         const { client, id } = instance;
 
-        client.on('qr', async (qr) => {
+        client.on('qr', async (qr: string) => {
             instance.status = 'qr';
             instance.qrCode = qr;
             instance.qrCodeBase64 = await QRCode.toDataURL(qr);
@@ -121,7 +123,7 @@ class WhatsAppManager extends EventEmitter {
             this.emit('authenticated', { instanceId: id });
         });
 
-        client.on('auth_failure', async (msg) => {
+        client.on('auth_failure', async (msg: any) => {
             instance.status = 'disconnected';
             logger.error({ instanceId: id, error: msg }, 'Auth failure');
 
@@ -129,7 +131,7 @@ class WhatsAppManager extends EventEmitter {
             this.emit('auth_failure', { instanceId: id, error: msg });
         });
 
-        client.on('disconnected', async (reason) => {
+        client.on('disconnected', async (reason: any) => {
             instance.status = 'disconnected';
             logger.warn({ instanceId: id, reason }, 'WhatsApp disconnected');
 
@@ -137,19 +139,19 @@ class WhatsAppManager extends EventEmitter {
             this.emit('disconnected', { instanceId: id, reason });
         });
 
-        client.on('message', (msg) => {
+        client.on('message', (msg: any) => {
             this.emit('message', { instanceId: id, message: this.formatMessage(msg) });
         });
 
-        client.on('message_create', (msg) => {
+        client.on('message_create', (msg: any) => {
             this.emit('message_create', { instanceId: id, message: this.formatMessage(msg) });
         });
 
-        client.on('message_ack', (msg, ack) => {
+        client.on('message_ack', (msg: any, ack: any) => {
             this.emit('message_ack', { instanceId: id, messageId: msg.id._serialized, ack });
         });
 
-        client.on('message_revoke_everyone', (msg, revokedMsg) => {
+        client.on('message_revoke_everyone', (msg: any, revokedMsg: any) => {
             this.emit('message_revoke_everyone', {
                 instanceId: id,
                 message: this.formatMessage(msg),
@@ -157,24 +159,24 @@ class WhatsAppManager extends EventEmitter {
             });
         });
 
-        client.on('group_join', (notification) => {
+        client.on('group_join', (notification: any) => {
             this.emit('group_join', { instanceId: id, notification });
         });
 
-        client.on('group_leave', (notification) => {
+        client.on('group_leave', (notification: any) => {
             this.emit('group_leave', { instanceId: id, notification });
         });
 
-        client.on('group_update', (notification) => {
+        client.on('group_update', (notification: any) => {
             this.emit('group_update', { instanceId: id, notification });
         });
 
-        client.on('call', (call) => {
+        client.on('call', (call: any) => {
             this.emit('call', { instanceId: id, call });
         });
     }
 
-    private formatMessage(msg: Message) {
+    private formatMessage(msg: any) {
         return {
             id: msg.id._serialized,
             from: msg.from,
@@ -275,7 +277,7 @@ class WhatsAppManager extends EventEmitter {
         return this.instances.get(instanceId);
     }
 
-    getClient(instanceId: string): Client | undefined {
+    getClient(instanceId: string): any | undefined {
         return this.instances.get(instanceId)?.client;
     }
 
@@ -353,7 +355,6 @@ class WhatsAppManager extends EventEmitter {
         if (!client) throw new Error(`Instance ${instanceId} not connected`);
 
         const chatId = this.formatNumber(to);
-        const { Location } = await import('whatsapp-web.js');
         const location = new Location(latitude, longitude, { name: description });
 
         const result = await client.sendMessage(chatId, location);
@@ -404,7 +405,7 @@ class WhatsAppManager extends EventEmitter {
         if (!client) throw new Error(`Instance ${instanceId} not connected`);
 
         const contacts = await client.getContacts();
-        return contacts.map(c => ({
+        return contacts.map((c: any) => ({
             id: c.id._serialized,
             number: c.number,
             name: c.name,
@@ -462,7 +463,7 @@ class WhatsAppManager extends EventEmitter {
         if (!client) throw new Error(`Instance ${instanceId} not connected`);
 
         const contacts = await client.getBlockedContacts();
-        return contacts.map(c => ({
+        return contacts.map((c: any) => ({
             id: c.id._serialized,
             number: c.number,
             name: c.name,
@@ -479,7 +480,7 @@ class WhatsAppManager extends EventEmitter {
         if (!client) throw new Error(`Instance ${instanceId} not connected`);
 
         const chats = await client.getChats();
-        return chats.map(c => ({
+        return chats.map((c: any) => ({
             id: c.id._serialized,
             name: c.name,
             isGroup: c.isGroup,
@@ -578,7 +579,7 @@ class WhatsAppManager extends EventEmitter {
 
         const chat = await client.getChatById(this.formatNumber(chatId));
         const messages = await chat.fetchMessages({ limit });
-        return messages.map(m => this.formatMessage(m));
+        return messages.map((m: any) => this.formatMessage(m));
     }
 
     // ================================
@@ -597,8 +598,8 @@ class WhatsAppManager extends EventEmitter {
         }
 
         return {
-            gid: (result as any).gid?._serialized || result,
-            missingParticipants: (result as any).missingParticipants || [],
+            gid: result.gid?._serialized || result,
+            missingParticipants: result.missingParticipants || [],
         };
     }
 
@@ -609,7 +610,7 @@ class WhatsAppManager extends EventEmitter {
         const chat = await client.getChatById(groupId);
         if (!chat.isGroup) throw new Error('Not a group chat');
 
-        const groupChat = chat as any; // Type assertion for group-specific properties
+        const groupChat = chat as any;
         return {
             id: chat.id._serialized,
             name: chat.name,

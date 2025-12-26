@@ -66,9 +66,9 @@ contacts.post('/list', async (c) => {
 
         // Apply filter
         if (filter === 'my_contacts') {
-            contactsList = contactsList.filter(c => c.isMyContact);
+            contactsList = contactsList.filter((c: any) => c.isMyContact);
         } else if (filter === 'groups') {
-            contactsList = contactsList.filter(c => c.isGroup);
+            contactsList = contactsList.filter((c: any) => c.isGroup);
         }
 
         // Paginate
