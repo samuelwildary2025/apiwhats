@@ -137,6 +137,25 @@ async function main() {
         await prisma.$connect();
         logger.info('✅ Database connected');
 
+        // Create default admin user if not exists
+        const bcrypt = await import('bcryptjs');
+        const existingAdmin = await prisma.user.findUnique({
+            where: { email: 'admin@admin.com' }
+        });
+
+        if (!existingAdmin) {
+            const hashedPassword = await bcrypt.default.hash('admin123456', 10);
+            await prisma.user.create({
+                data: {
+                    email: 'admin@admin.com',
+                    password: hashedPassword,
+                    name: 'Admin',
+                    role: 'ADMIN',
+                }
+            });
+            logger.info('✅ Default admin created: admin@admin.com / admin123456');
+        }
+
         // Setup webhook listeners
         setupWebhookListeners();
 
