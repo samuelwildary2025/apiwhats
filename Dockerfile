@@ -6,6 +6,10 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 
+# Force rebuild on code changes (ARG is passed by EasyPanel)
+ARG GIT_SHA=dev
+RUN echo "Building commit: $GIT_SHA"
+
 # Copy source and build
 COPY . .
 RUN npm run db:generate
