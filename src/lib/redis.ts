@@ -1,4 +1,4 @@
-import Redis from 'ioredis';
+import { Redis } from 'ioredis';
 import { env } from '../config/env.js';
 
 export const redis = new Redis(env.redisUrl, {
@@ -6,7 +6,7 @@ export const redis = new Redis(env.redisUrl, {
     enableReadyCheck: false,
 });
 
-redis.on('error', (err) => {
+redis.on('error', (err: Error) => {
     console.error('Redis connection error:', err);
 });
 

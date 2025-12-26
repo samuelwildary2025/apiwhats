@@ -2,8 +2,7 @@ import { Hono } from 'hono';
 import { streamSSE } from 'hono/streaming';
 import { prisma } from '../../lib/prisma.js';
 import { waManager, WAEvent } from '../../lib/whatsapp.js';
-import { instanceTokenMiddleware, authMiddleware } from '../../middlewares/auth.js';
-import { HTTPException } from 'hono/http-exception';
+import { instanceTokenMiddleware } from '../../middlewares/auth.js';
 import { logger } from '../../lib/logger.js';
 import { env } from '../../config/env.js';
 

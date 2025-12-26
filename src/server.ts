@@ -144,7 +144,7 @@ async function main() {
         startCampaignWorker();
 
         // Start server
-        const server = serve({
+        serve({
             fetch: app.fetch,
             port: env.port,
             hostname: env.host,

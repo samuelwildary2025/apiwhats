@@ -3,10 +3,9 @@ import { z } from 'zod';
 import { prisma } from '../../lib/prisma.js';
 import { waManager } from '../../lib/whatsapp.js';
 import { redis } from '../../lib/redis.js';
-import { authMiddleware, instanceTokenMiddleware } from '../../middlewares/auth.js';
+import { authMiddleware } from '../../middlewares/auth.js';
 import { HTTPException } from 'hono/http-exception';
 import { Queue, Worker, Job } from 'bullmq';
-import { env } from '../../config/env.js';
 import { logger } from '../../lib/logger.js';
 
 const campaigns = new Hono();

@@ -353,7 +353,8 @@ class WhatsAppManager extends EventEmitter {
         if (!client) throw new Error(`Instance ${instanceId} not connected`);
 
         const chatId = this.formatNumber(to);
-        const location = new (await import('whatsapp-web.js')).Location(latitude, longitude, description);
+        const { Location } = await import('whatsapp-web.js');
+        const location = new Location(latitude, longitude, { name: description });
 
         const result = await client.sendMessage(chatId, location);
         return this.formatMessage(result);
@@ -591,9 +592,13 @@ class WhatsAppManager extends EventEmitter {
         const formattedParticipants = participants.map(p => this.formatNumber(p));
         const result = await client.createGroup(name, formattedParticipants);
 
+        if (typeof result === 'string') {
+            return { gid: result, missingParticipants: [] };
+        }
+
         return {
-            gid: result.gid._serialized,
-            missingParticipants: result.missingParticipants,
+            gid: (result as any).gid?._serialized || result,
+            missingParticipants: (result as any).missingParticipants || [],
         };
     }
 

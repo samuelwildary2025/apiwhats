@@ -3,7 +3,7 @@ import { streamSSE } from 'hono/streaming';
 import { z } from 'zod';
 import { prisma } from '../../lib/prisma.js';
 import { waManager } from '../../lib/whatsapp.js';
-import { authMiddleware, instanceTokenMiddleware } from '../../middlewares/auth.js';
+import { authMiddleware } from '../../middlewares/auth.js';
 import { HTTPException } from 'hono/http-exception';
 
 const instance = new Hono();
@@ -14,13 +14,6 @@ const instance = new Hono();
 
 const updateNameSchema = z.object({
     name: z.string().min(1).max(100),
-});
-
-const privacySchema = z.object({
-    readReceipts: z.boolean().optional(),
-    profilePhoto: z.enum(['all', 'contacts', 'none']).optional(),
-    status: z.enum(['all', 'contacts', 'none']).optional(),
-    online: z.boolean().optional(),
 });
 
 // ================================
